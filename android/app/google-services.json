@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "809415721892",
+    "project_id": "cine-stream-12d47",
+    "storage_bucket": "cine-stream-12d47.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809415721892:android:07a0470b7d816e2cfcf731",
+        "android_client_info": {
+          "package_name": "com.example.cine_stream"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_-mxRawAGjt931O0LGsCeBvqMbJy8TAM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
