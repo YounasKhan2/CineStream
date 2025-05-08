@@ -36,6 +36,7 @@ dependencies:
   cloud_firestore:
   country_picker:
   intl_phone_field:
+  http:
 
 dev_dependencies:
   flutter_test:
