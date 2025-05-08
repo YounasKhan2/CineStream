@@ -3,6 +3,9 @@ import '../services/movie_service.dart';
 import 'movie_details_page.dart';
 import 'search_results_page.dart';
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,10 +27,8 @@ class _HomePageState extends State<HomePage> {
   late Future<List<dynamic>> _romanceMovies;
   late Future<List<dynamic>> _thrillerMovies;
   late Future<List<dynamic>> _animationMovies;
-  final PageController _pageController = PageController(
-    initialPage: 0,
-    viewportFraction: 1.0,
-  ); // Initialize here
+  final PageController _pageController =
+      PageController(); // Simplified initialization
   int _currentPage = 0;
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
@@ -98,13 +99,17 @@ class _HomePageState extends State<HomePage> {
   void _autoScrollHeroBanner() {
     Future.delayed(const Duration(seconds: 5), () {
       if (_pageController.hasClients) {
-        final nextPage = (_currentPage + 1) % 5;
-        _pageController.animateToPage(
-          nextPage,
-          duration: const Duration(milliseconds: 800),
-          curve: Curves.easeInOut,
-        );
-        _autoScrollHeroBanner();
+        final nextPage =
+            (_currentPage + 1) % 5; // Ensure it loops through 5 pages
+        _pageController
+            .animateToPage(
+              nextPage,
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
+            )
+            .then(
+              (_) => _autoScrollHeroBanner(),
+            ); // Recursively call to continue auto-scrolling
       }
     });
   }
@@ -399,7 +404,8 @@ class _HomePageState extends State<HomePage> {
                                 child:
                                     movie['medium_cover_image'] != null
                                         ? Hero(
-                                          tag: 'movie-${movie['id']}',
+                                          tag:
+                                              'movie-${movie['id']}-${DateTime.now().millisecondsSinceEpoch}', // Ensure unique tag by appending a timestamp
                                           child: Image.network(
                                             movie['medium_cover_image'],
                                             fit: BoxFit.cover,
@@ -511,7 +517,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () async {
-              final query = await showSearch(
+              await showSearch(
                 context: context,
                 delegate: MovieSearchDelegate((searchQuery) {
                   Navigator.push(
@@ -529,16 +535,45 @@ class _HomePageState extends State<HomePage> {
             icon: CircleAvatar(
               backgroundColor: Colors.red,
               radius: 16,
-              child: const Text(
-                'U', // Placeholder for user profile
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              child: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                future:
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(FirebaseAuth.instance.currentUser?.uid)
+                        .get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator(color: Colors.white);
+                  } else if (snapshot.hasError ||
+                      !snapshot.hasData ||
+                      snapshot.data?.data() == null) {
+                    return const Text(
+                      'U',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    );
+                  } else {
+                    final username = snapshot.data?.data()?['username'] ?? '';
+                    return Text(
+                      username.isNotEmpty
+                          ? username.substring(0, 1).toUpperCase()
+                          : 'U',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    );
+                  }
+                },
               ),
             ),
             onPressed: () {
-              // TODO: Implement profile feature
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
             },
           ),
           const SizedBox(width: 8),
@@ -574,7 +609,6 @@ class _HomePageState extends State<HomePage> {
               _buildCategorySection('Thriller', _thrillerMovies),
               _buildCategorySection('Animation', _animationMovies),
               const SizedBox(height: 24),
-              // Added developer info card
             ],
           ),
         ),

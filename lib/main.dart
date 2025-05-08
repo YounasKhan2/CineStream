@@ -2,11 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/home_page.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await initializePathProvider();
   runApp(const MyApp());
+}
+
+Future<void> initializePathProvider() async {
+  try {
+    await getApplicationSupportDirectory();
+  } catch (e) {
+    debugPrint('Error initializing path provider: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -21,6 +33,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const SplashScreen(),
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 }

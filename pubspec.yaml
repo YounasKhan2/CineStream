@@ -37,6 +37,11 @@ dependencies:
   country_picker:
   intl_phone_field:
   http:
+  video_player:
+  cached_network_image:
+  chewie:
+  flutter_spinkit:
+  path_provider:
 
 dev_dependencies:
   flutter_test:
