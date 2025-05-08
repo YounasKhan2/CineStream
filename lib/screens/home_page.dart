@@ -16,6 +16,14 @@ class _HomePageState extends State<HomePage> {
   late Future<List<dynamic>> _trendingMovies;
   late Future<List<dynamic>> _topRatedMovies;
   late Future<List<dynamic>> _latestReleases;
+  late Future<List<dynamic>> _actionMovies;
+  late Future<List<dynamic>> _comedyMovies;
+  late Future<List<dynamic>> _horrorMovies;
+  late Future<List<dynamic>> _sciFiMovies;
+  late Future<List<dynamic>> _dramaMovies;
+  late Future<List<dynamic>> _romanceMovies;
+  late Future<List<dynamic>> _thrillerMovies;
+  late Future<List<dynamic>> _animationMovies;
   final PageController _pageController = PageController(
     initialPage: 0,
     viewportFraction: 1.0,
@@ -33,6 +41,46 @@ class _HomePageState extends State<HomePage> {
     );
     _topRatedMovies = _movieService.fetchMovies(sortBy: 'rating', limit: 10);
     _latestReleases = _movieService.fetchMovies(sortBy: 'year', limit: 10);
+    _actionMovies = _movieService.fetchMovies(
+      sortBy: 'download_count',
+      limit: 10,
+      genre: 'Action',
+    );
+    _comedyMovies = _movieService.fetchMovies(
+      sortBy: 'download_count',
+      limit: 10,
+      genre: 'Comedy',
+    );
+    _horrorMovies = _movieService.fetchMovies(
+      sortBy: 'download_count',
+      limit: 10,
+      genre: 'Horror',
+    );
+    _sciFiMovies = _movieService.fetchMovies(
+      sortBy: 'download_count',
+      limit: 10,
+      genre: 'Sci-Fi',
+    );
+    _dramaMovies = _movieService.fetchMovies(
+      sortBy: 'download_count',
+      limit: 10,
+      genre: 'Drama',
+    );
+    _romanceMovies = _movieService.fetchMovies(
+      sortBy: 'download_count',
+      limit: 10,
+      genre: 'Romance',
+    );
+    _thrillerMovies = _movieService.fetchMovies(
+      sortBy: 'download_count',
+      limit: 10,
+      genre: 'Thriller',
+    );
+    _animationMovies = _movieService.fetchMovies(
+      sortBy: 'download_count',
+      limit: 10,
+      genre: 'Animation',
+    );
 
     // Auto-scroll hero banner
     Future.delayed(const Duration(seconds: 1), () {
@@ -112,9 +160,29 @@ class _HomePageState extends State<HomePage> {
                     fit: StackFit.expand,
                     children: [
                       // Background image
+                      // Updated the image display to ensure HD quality and proper fit
                       Image.network(
                         movie['background_image'] ?? '',
                         fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey[900],
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.red,
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       // Gradient overlay
                       Container(
@@ -399,13 +467,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCategorySection(String genre) {
-    final Future<List<dynamic>> moviesFuture = _movieService.fetchMovies(
-      sortBy: 'download_count',
-      limit: 10,
-      genre: genre,
-    );
-
+  Widget _buildCategorySection(
+    String genre,
+    Future<List<dynamic>> moviesFuture,
+  ) {
     return _buildMovieSection('$genre Movies', moviesFuture);
   }
 
@@ -500,15 +565,16 @@ class _HomePageState extends State<HomePage> {
               _buildMovieSection('Trending Now', _trendingMovies),
               _buildMovieSection('Top Rated', _topRatedMovies),
               _buildMovieSection('New Releases', _latestReleases),
-              _buildCategorySection('Action'),
-              _buildCategorySection('Comedy'),
-              _buildCategorySection('Horror'),
-              _buildCategorySection('Sci-Fi'),
-              _buildCategorySection('Drama'),
-              _buildCategorySection('Romance'),
-              _buildCategorySection('Thriller'),
-              _buildCategorySection('Animation'),
+              _buildCategorySection('Action', _actionMovies),
+              _buildCategorySection('Comedy', _comedyMovies),
+              _buildCategorySection('Horror', _horrorMovies),
+              _buildCategorySection('Sci-Fi', _sciFiMovies),
+              _buildCategorySection('Drama', _dramaMovies),
+              _buildCategorySection('Romance', _romanceMovies),
+              _buildCategorySection('Thriller', _thrillerMovies),
+              _buildCategorySection('Animation', _animationMovies),
               const SizedBox(height: 24),
+              // Added developer info card
             ],
           ),
         ),

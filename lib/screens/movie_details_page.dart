@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../services/movie_service.dart';
 
 class MovieDetailsPage extends StatelessWidget {
   final int movieId;
@@ -9,7 +8,6 @@ class MovieDetailsPage extends StatelessWidget {
   const MovieDetailsPage({Key? key, required this.movieId}) : super(key: key);
 
   Future<Map<String, dynamic>> _fetchMovieDetails() async {
-    final movieService = MovieService();
     final uri = Uri.parse('https://yts.mx/api/v2/movie_details.json').replace(
       queryParameters: {
         'movie_id': movieId.toString(),
